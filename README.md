@@ -11,6 +11,6 @@
 | Ciclo `for` | `for i in range(5):` | `for (let i = 0; i < 5; i++) { }` | `for (int i = 0; i < 5; i++) { }` |
 | Crear una función | `def saludar():` | `function saludar() { }` | `void Saludar() { }` |
 
-## Conclusión
+## Conclusión                        
 
 Python tiene una sintaxis sencilla y utiliza la indentación para organizar los bloques de código. JavaScript se utiliza principalmente en el desarrollo web. C# utiliza tipos de datos explícitos y se emplea en aplicaciones de escritorio, desarrollo web y videojuegos.
