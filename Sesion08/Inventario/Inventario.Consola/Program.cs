@@ -21,8 +21,9 @@ while (continuar)
     Console.WriteLine("3. Vender producto");
     Console.WriteLine("4. Ver inventario");
     Console.WriteLine("5. Productos con stock bajo");
-    Console.WriteLine("6. Salir");
-    Console.Write("Seleccione una opción: ");
+    Console.WriteLine("6. Buscar producto por texto");
+    Console.WriteLine("7. Eliminar producto");
+    Console.WriteLine("8. Salir");
 
     string opcion = Console.ReadLine() ?? "";
 
@@ -51,12 +52,16 @@ while (continuar)
                 break;
 
             case "6":
-                continuar = false;
-                Console.WriteLine("Programa finalizado.");
+                BuscarProducto();
                 break;
 
-            default:
-                Console.WriteLine("Opción no válida.");
+            case "7":
+                EliminarProducto();
+                break;
+
+            case "8":
+                continuar = false;
+                Console.WriteLine("Programa finalizado.");
                 break;
         }
     }
@@ -180,5 +185,66 @@ void MostrarStockBajo()
     foreach (Producto producto in productos)
     {
         Console.WriteLine(producto);
+    }
+}
+
+void BuscarProducto()
+{
+    Console.WriteLine("\n=== BUSCAR PRODUCTO ===");
+
+    Console.Write("Escribe el nombre o código: ");
+    string texto = Console.ReadLine() ?? "";
+
+    List<Producto> productos = servicio.BuscarPorTexto(texto);
+
+    if (productos.Count == 0)
+    {
+        Console.WriteLine("No se encontraron productos.");
+        return;
+    }
+
+    Console.WriteLine("\n=== RESULTADOS DE BÚSQUEDA ===");
+
+    foreach (Producto producto in productos)
+    {
+        Console.WriteLine(producto);
+    }
+}
+
+void EliminarProducto()
+{
+    Console.WriteLine("\n=== ELIMINAR PRODUCTO ===");
+
+    Console.Write("Código del producto: ");
+    string codigo = Console.ReadLine() ?? "";
+
+    Producto? producto = servicio.Listar()
+        .FirstOrDefault(p =>
+            p.Codigo.Equals(
+                codigo,
+                StringComparison.OrdinalIgnoreCase
+            )
+        );
+
+    if (producto == null)
+    {
+        Console.WriteLine("Producto no encontrado.");
+        return;
+    }
+
+    Console.WriteLine("\nProducto seleccionado:");
+    Console.WriteLine(producto);
+
+    Console.Write("¿Seguro que deseas eliminarlo? (s/n): ");
+    string confirmacion = Console.ReadLine() ?? "";
+
+    if (confirmacion.Equals("s", StringComparison.OrdinalIgnoreCase))
+    {
+        servicio.Eliminar(codigo);
+        Console.WriteLine("Producto eliminado correctamente.");
+    }
+    else
+    {
+        Console.WriteLine("Eliminación cancelada.");
     }
 }

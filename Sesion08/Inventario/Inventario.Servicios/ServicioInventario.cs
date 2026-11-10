@@ -82,4 +82,29 @@ public class ServicioInventario
             .Where(p => p.Stock < 5)
             .ToList();
     }
+
+    public List<Producto> BuscarPorTexto(string texto)
+    {
+        if (string.IsNullOrWhiteSpace(texto))
+        {
+            throw new ArgumentException("Debes escribir un texto para buscar.");
+        }
+
+        return _repositorio.ObtenerTodos()
+            .Where(p =>
+                p.Nombre.Contains(texto, StringComparison.OrdinalIgnoreCase) ||
+                p.Codigo.Contains(texto, StringComparison.OrdinalIgnoreCase)
+            )
+            .ToList();
+    }
+
+    public void Eliminar(string codigo)
+    {
+        if (string.IsNullOrWhiteSpace(codigo))
+        {
+            throw new ArgumentException("Debes escribir el código del producto.");
+        }
+
+        _repositorio.Eliminar(codigo);
+    }
 }

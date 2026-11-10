@@ -38,4 +38,15 @@ public class RepositorioMemoria : IRepositorioProductos
 
         _productos[indice] = producto;
     }
+    public void Eliminar(string codigo)
+    {
+        Producto? producto = BuscarPorCodigo(codigo);
+
+        if (producto == null)
+        {
+            throw new ArgumentException("Producto no encontrado.");
+        }
+
+        _productos.Remove(producto);
+    }
 }

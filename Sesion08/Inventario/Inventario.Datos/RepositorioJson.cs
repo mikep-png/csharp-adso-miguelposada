@@ -117,4 +117,24 @@ public class RepositorioJson : IRepositorioProductos
 
         GuardarArchivo(productos);
     }
+    public void Eliminar(string codigo)
+    {
+        List<Producto> productos = LeerArchivo();
+
+        int indice = productos.FindIndex(
+            p => p.Codigo.Equals(
+                codigo,
+                StringComparison.OrdinalIgnoreCase
+            )
+        );
+
+        if (indice == -1)
+        {
+            throw new ArgumentException("Producto no encontrado.");
+        }
+
+        productos.RemoveAt(indice);
+
+        GuardarArchivo(productos);
+    }
 }
