@@ -63,9 +63,13 @@ namespace Inventario.Escritorio
             btnAgregar.Click += (s, e) => AgregarProducto();
             Controls.Add(btnAgregar);
 
-            var btnEliminar = CrearBoton("Eliminar", 570, 83);
+            var btnEliminar = CrearBoton("Eliminar", 555, 83);
             btnEliminar.Click += (s, e) => EliminarProducto();
             Controls.Add(btnEliminar);
+
+            var btnReportes = CrearBoton("Reportes", 710, 83);
+            btnReportes.Click += (s, e) => AbrirReportes();
+            Controls.Add(btnReportes);
 
             dgvProductos = new DataGridView
             {
@@ -87,6 +91,8 @@ namespace Inventario.Escritorio
             dgvProductos.Columns.Add("Nombre", "Nombre");
             dgvProductos.Columns.Add("Precio", "Precio");
             dgvProductos.Columns.Add("Stock", "Stock");
+
+            dgvProductos.CellDoubleClick += DgvProductos_CellDoubleClick;
 
             Controls.Add(dgvProductos);
 
@@ -145,7 +151,8 @@ namespace Inventario.Escritorio
 
             reloj.Tick += (s, e) =>
             {
-                lblEstado.Text = $"Productos: {dgvProductos.Rows.Count} | Hora: {DateTime.Now:HH:mm:ss}";
+                lblEstado.Text =
+                    $"Productos: {dgvProductos.Rows.Count} | Hora: {DateTime.Now:HH:mm:ss}";
             };
 
             reloj.Start();
@@ -201,7 +208,8 @@ namespace Inventario.Escritorio
             lblTotal.Text = $"Valor total del inventario: {total:C2}";
 
             if (lblEstado != null)
-                lblEstado.Text = $"Productos: {productos.Count()} | Hora: {DateTime.Now:HH:mm:ss}";
+                lblEstado.Text =
+                    $"Productos: {productos.Count} | Hora: {DateTime.Now:HH:mm:ss}";
         }
 
         private Producto Seleccionado()
@@ -216,6 +224,60 @@ namespace Inventario.Escritorio
                 .FirstOrDefault(p => p.Codigo == codigo);
         }
 
+
+        private void DgvProductos_CellDoubleClick(
+            object sender,
+            DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0)
+                return;
+
+            string codigo = dgvProductos.Rows[e.RowIndex]
+                .Cells["Codigo"].Value?.ToString();
+
+            Producto producto = _servicio.Listar()
+                .FirstOrDefault(p => p.Codigo == codigo);
+
+            if (producto == null)
+                return;
+
+            using (var formulario = new FormProducto())
+            {
+                formulario.CargarProducto(producto);
+
+                if (formulario.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        // Actualizar los datos mediante el servicio.
+                        _servicio.Actualizar(formulario.ProductoCreado);
+
+                        // Volver a consultar el inventario.
+                        CargarProductos();
+
+                        MessageBox.Show(
+                            "Producto actualizado correctamente.\n\n" +
+                            $"Nuevo nombre: {formulario.ProductoCreado.Nombre}\n" +
+                            $"Nuevo precio: {formulario.ProductoCreado.Precio:C2}",
+                            "Actualización exitosa",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            ex.Message,
+                            "Error al actualizar",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                        );
+                    }
+                }
+            }
+        }
+
+
         private void AgregarProducto()
         {
             using var formulario = new FormProducto();
@@ -224,18 +286,25 @@ namespace Inventario.Escritorio
             {
                 try
                 {
-                    _servicio.Agregar(
-                        formulario.ProductoCreado
-                    );
-
+                    _servicio.Agregar(formulario.ProductoCreado);
                     CargarProductos();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(
+                        ex.Message,
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
                 }
             }
+        }
+
+        private void AbrirReportes()
+        {
+            using var formulario = new FormReportes(_servicio);
+            formulario.ShowDialog();
         }
 
         private void VenderProducto()
@@ -257,8 +326,12 @@ namespace Inventario.Escritorio
             }
             catch (StockInsuficienteException ex)
             {
-                MessageBox.Show(ex.Message, "Stock insuficiente",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(
+                    ex.Message,
+                    "Stock insuficiente",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
             }
             catch (Exception ex)
             {
@@ -274,12 +347,19 @@ namespace Inventario.Escritorio
                 return;
             }
 
-            _servicio.AgregarStock(
-                producto.Codigo,
-                (int)nudCantidad.Value
-            );
+            try
+            {
+                _servicio.AgregarStock(
+                    producto.Codigo,
+                    (int)nudCantidad.Value
+                );
 
-            CargarProductos();
+                CargarProductos();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error");
+            }
         }
 
         private void EliminarProducto()

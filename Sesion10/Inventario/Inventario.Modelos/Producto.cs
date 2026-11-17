@@ -16,6 +16,22 @@ public class Producto
         Stock = stock;
     }
 
+    public void ActualizarDatos(string nombre, decimal precio)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+        {
+            throw new ArgumentException("El nombre es obligatorio.");
+        }
+
+        if (precio < 0)
+        {
+            throw new ArgumentException("El precio no puede ser negativo.");
+        }
+
+        Nombre = nombre;
+        Precio = precio;
+    }
+
     public void Vender(int cantidad)
     {
         if (cantidad <= 0)

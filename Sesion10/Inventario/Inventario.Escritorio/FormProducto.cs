@@ -15,6 +15,8 @@ namespace Inventario.Escritorio
 
         public Producto ProductoCreado { get; private set; }
 
+        private bool _esEdicion = false;
+
         public FormProducto()
         {
             Text = "Agregar producto";
@@ -87,6 +89,22 @@ namespace Inventario.Escritorio
             CancelButton = btnCancelar;
         }
 
+
+        public void CargarProducto(Producto producto)
+        {
+            _esEdicion = true;
+
+            Text = "Editar producto";
+
+            txtCodigo.Text = producto.Codigo;
+            txtCodigo.Enabled = false;
+
+            txtNombre.Text = producto.Nombre;
+            nudPrecio.Value = producto.Precio;
+            nudStock.Value = producto.Stock;
+        }
+
+
         private void CrearEtiqueta(string texto, int x, int y)
         {
             Controls.Add(new Label
@@ -110,18 +128,13 @@ namespace Inventario.Escritorio
         }
 
 
+
         private void GuardarProducto()
         {
             if (string.IsNullOrWhiteSpace(txtCodigo.Text) ||
                 string.IsNullOrWhiteSpace(txtNombre.Text))
             {
-                MessageBox.Show(
-                    "El código y el nombre son obligatorios.",
-                    "Validación",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                );
-
+                MessageBox.Show("El código y el nombre son obligatorios.");
                 return;
             }
 
@@ -147,11 +160,12 @@ namespace Inventario.Escritorio
             {
                 MessageBox.Show(
                     ex.Message,
-                    "Error al crear producto",
+                    "Error al guardar",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error
                 );
             }
         }
+
     }
 }
