@@ -1,4 +1,4 @@
-﻿namespace Inventario.Escritorio
+﻿namespace Reto
 {
     partial class Form1
     {
