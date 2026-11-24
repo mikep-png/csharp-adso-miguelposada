@@ -1,0 +1,20 @@
+﻿
+using Inventario.Modelos;
+
+namespace Inventario.Datos;
+
+public interface IRepositorioProductos
+{
+    List<Producto> ObtenerTodos();
+
+    Producto? BuscarPorCodigo(string codigo);
+
+    void Agregar(Producto producto);
+
+    void Actualizar(Producto producto);
+
+    void Eliminar(string codigo);
+
+    // Nuevo: obtener las categorías disponibles.
+    List<Categoria> ObtenerCategorias();
+}
